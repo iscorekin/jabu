@@ -25,15 +25,15 @@ function render() {
     const level = state.board[i];
     tile.querySelector('img').src = sprite(level);
     tile.querySelector('.level').textContent = String(level);
-    tile.setAttribute('aria-label', `Жаба уровня ${level}, ряд ${Math.floor(i / 3) + 1}, столбец ${i % 3 + 1}`);
+    tile.setAttribute('aria-label', `Level ${level} frog, row ${Math.floor(i / 3) + 1}, column ${i % 3 + 1}`);
     tile.setAttribute('aria-pressed', String(selected === i));
     tile.disabled = state.status !== 'playing';
     tile.classList.toggle('selected', selected === i);
     tile.classList.toggle('valid-target', selected !== null && selected !== i && state.board[selected] === level);
   });
-  $('best-score').textContent = bestScore.toLocaleString('ru-RU');
+  $('best-score').textContent = bestScore.toLocaleString('en-US');
   $('max-level').textContent = String(state.maxLevelReached);
-  $('merge-count').textContent = state.mergeCount.toLocaleString('ru-RU');
+  $('merge-count').textContent = state.mergeCount.toLocaleString('en-US');
 }
 function animateScore() {
   cancelAnimationFrame(scoreFrame);
@@ -41,7 +41,7 @@ function animateScore() {
   function frame(now) {
     const t = Math.min(1, (now - start) / 280);
     shownScore = Math.round(from + (target - from) * (1 - (1 - t) ** 3));
-    $('score').textContent = shownScore.toLocaleString('ru-RU');
+    $('score').textContent = shownScore.toLocaleString('en-US');
     if (t < 1) scoreFrame = requestAnimationFrame(frame);
   }
   scoreFrame = requestAnimationFrame(frame);
@@ -53,7 +53,7 @@ function choose(i) {
   else if (state.board[selected] === state.board[i]) { merge(selected, i); return; }
   else selected = i;
   render();
-  $('status').textContent = selected === null ? '' : `Выберите ещё одну жабу уровня ${state.board[selected]}`;
+  $('status').textContent = selected === null ? '' : `Select another level ${state.board[selected]} frog`;
 }
 function merge(source, target) {
   if (locked) return;
@@ -63,7 +63,7 @@ function merge(source, target) {
   persist(); render(); animateScore();
   tiles[target].classList.add('merging'); tiles[source].classList.add('spawning');
   audio.playMerge(result.newLevel);
-  $('status').textContent = `+${result.points.toLocaleString('ru-RU')} очков`;
+  $('status').textContent = `+${result.points.toLocaleString('en-US')} points`;
   animationTimer = setTimeout(() => {
     tiles.forEach(tile => tile.classList.remove('merging', 'spawning'));
     locked = false;
@@ -104,7 +104,7 @@ window.addEventListener('blur', () => { cleanupGesture(); selected = null; rende
 $('sound-toggle').addEventListener('click', () => {
   audio.setEnabled(!audio.enabled); audio.unlock();
   $('sound-toggle').setAttribute('aria-pressed', String(audio.enabled));
-  $('sound-toggle').textContent = `Звук: ${audio.enabled ? 'вкл.' : 'выкл.'}`;
+  $('sound-toggle').textContent = `Sound: ${audio.enabled ? 'on' : 'off'}`;
 });
 function reset() {
   clearTimeout(animationTimer); cancelAnimationFrame(scoreFrame); cleanupGesture();
@@ -122,10 +122,10 @@ function persist() {
 }
 function showGameOver() {
   if (state.status !== 'game_over') return;
-  $('final-score').textContent = `${state.score.toLocaleString('ru-RU')} очков · ${state.mergeCount} объединений · уровень ${state.maxLevelReached}`;
+  $('final-score').textContent = `${state.score.toLocaleString('en-US')} points · ${state.mergeCount} merges · level ${state.maxLevelReached}`;
   if (!$('game-over').open) $('game-over').showModal();
 }
-$('score').textContent = shownScore.toLocaleString('ru-RU');
+$('score').textContent = shownScore.toLocaleString('en-US');
 persist();
 render();
 showGameOver();
