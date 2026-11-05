@@ -1,21 +1,24 @@
 export const CONFIG = Object.freeze({
   boardSize: 9,
   spawnLowerLevelProbability: 0.85,
-  spawnTiers: Object.freeze([
-    Object.freeze({ unlockedAt: 1, lowerLevel: 1 }),
-    Object.freeze({ unlockedAt: 6, lowerLevel: 2 }),
-    Object.freeze({ unlockedAt: 9, lowerLevel: 3 }),
-    Object.freeze({ unlockedAt: 12, lowerLevel: 4 }),
-    Object.freeze({ unlockedAt: 15, lowerLevel: 5 }),
-  ]),
+  spawnProgressionStartsAt: 6,
+  spawnLevelsPerStep: 10,
   pointsMultiplier: 10,
   initialBoard: Object.freeze([1, 1, 2, 1, 2, 3, 2, 3, 1]),
 });
 
+export function getSpawnMix(maxLevelReached) {
+  const progress = Math.max(0, maxLevelReached - CONFIG.spawnProgressionStartsAt);
+  return {
+    lowerLevel: 1 + Math.floor(progress / CONFIG.spawnLevelsPerStep),
+    higherPairChance: (progress % CONFIG.spawnLevelsPerStep) / CONFIG.spawnLevelsPerStep,
+  };
+}
+
 export function spawnLevel(maxLevelReached, rng = Math.random) {
-  const tier = [...CONFIG.spawnTiers].reverse().find(tier => maxLevelReached >= tier.unlockedAt);
-  const lowerLevel = tier?.lowerLevel ?? 1;
-  return lowerLevel + (rng() < CONFIG.spawnLowerLevelProbability ? 0 : 1);
+  const { lowerLevel, higherPairChance } = getSpawnMix(maxLevelReached);
+  const pairOffset = higherPairChance > 0 && rng() < higherPairChance ? 1 : 0;
+  return lowerLevel + pairOffset + (rng() < CONFIG.spawnLowerLevelProbability ? 0 : 1);
 }
 
 export function hasAvailableMerge(board) {

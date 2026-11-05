@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CONFIG, createGame, hasAvailableMerge, mergeGame, spawnLevel } from './game.js';
+import { CONFIG, createGame, hasAvailableMerge, mergeGame, spawnLevel, getSpawnMix } from './game.js';
 
 test('new games reset progress and do not share their board', () => {
   const first = createGame();
@@ -45,9 +45,9 @@ test('invalid actions preserve the entire state and never draw randomness', () =
 });
 
 test('last available pair ends the game after spawning and further actions are blocked', () => {
-  const state = { ...createGame(), board: [8, 8, 1, 2, 4, 5, 6, 7, 10], maxLevelReached: 10 };
-  const result = mergeGame(state, 0, 1, () => 0);
-  assert.deepEqual(result.state.board, [3, 9, 1, 2, 4, 5, 6, 7, 10]);
+  const state = { ...createGame(), board: [8, 8, 2, 3, 4, 5, 6, 7, 10], maxLevelReached: 10 };
+  const result = mergeGame(state, 0, 1, () => 0.5);
+  assert.deepEqual(result.state.board, [1, 9, 2, 3, 4, 5, 6, 7, 10]);
   assert.equal(result.state.status, 'game_over');
   assert.equal(result.state.board.length, 9);
   assert.equal(hasAvailableMerge(result.state.board), false);
@@ -55,7 +55,7 @@ test('last available pair ends the game after spawning and further actions are b
 });
 
 test('availability is checked after the replacement frog spawns', () => {
-  const state = { ...createGame(), board: [8, 8, 1, 2, 4, 5, 6, 7, 10], maxLevelReached: 10 };
+  const state = { ...createGame(), board: [8, 8, 2, 3, 4, 5, 6, 7, 10], maxLevelReached: 10 };
   const result = mergeGame(state, 0, 1, () => 0.99);
   assert.equal(result.state.status, 'playing');
   assert.equal(hasAvailableMerge(result.state.board), true);
@@ -71,26 +71,42 @@ test('high levels have no artificial cap and scoring accumulates', () => {
   assert.equal(result.state.board.every(level => Number.isInteger(level) && level >= 1), true);
 });
 
-test('spawn tiers use the 85/15 boundary and persist above the last threshold', () => {
-  for (const [maxLevel, lower] of [[1,1],[3,1],[5,1],[6,2],[7,2],[8,2],[9,3],[10,3],[11,3],[12,4],[13,4],[14,4],[15,5],[16,5],[30,5]]) {
-    assert.equal(spawnLevel(maxLevel, () => 0), lower);
-    assert.equal(spawnLevel(maxLevel, () => 0.849999), lower);
-    assert.equal(spawnLevel(maxLevel, () => 0.85), lower + 1);
-    assert.equal(spawnLevel(maxLevel, () => 0.999999), lower + 1);
+const sequence = (...values) => () => {
+  assert.ok(values.length, 'Unexpected random draw');
+  return values.shift();
+};
+
+test('spawn help increases by ten percentage points per unlocked level after six', () => {
+  for (const [level, lower, chance] of [[1,1,0],[6,1,0],[7,1,.1],[8,1,.2],[9,1,.3],[10,1,.4],[15,1,.9],[16,2,0],[17,2,.1],[26,3,0]]) {
+    assert.deepEqual(getSpawnMix(level), { lowerLevel: lower, higherPairChance: chance });
   }
 });
 
-test('unlocking a tier changes the replacement frog in the same merge', () => {
-  for (const [unlocked, lower] of [[6,2],[9,3],[12,4],[15,5]]) {
-    const state = { ...createGame(), board: [unlocked - 1, unlocked - 1, 1, 1, 2, 2, 3, 3, 1], maxLevelReached: unlocked - 1 };
-    assert.equal(mergeGame(state, 0, 1, () => 0).state.board[0], lower);
-    assert.equal(mergeGame(state, 0, 1, () => 0.85).state.board[0], lower + 1);
+test('pair selection and the 85/15 roll are independent at their exact boundaries', () => {
+  assert.equal(spawnLevel(8, sequence(.199999, .849999)), 2);
+  assert.equal(spawnLevel(8, sequence(.199999, .85)), 3);
+  assert.equal(spawnLevel(8, sequence(.2, .849999)), 1);
+  assert.equal(spawnLevel(8, sequence(.2, .85)), 2);
+  assert.equal(spawnLevel(16, sequence(.849999)), 2);
+  assert.equal(spawnLevel(16, sequence(.85)), 3);
+});
+
+test('combined probabilities match the two-stage distribution across the progression', () => {
+  for (const max of [6,7,8,9,10,15,16,17,26]) {
+    const { lowerLevel: low, higherPairChance: p } = getSpawnMix(max);
+    const counts = [0,0,0];
+    for(let pair=0;pair<100;pair++) for(let rarity=0;rarity<100;rarity++) {
+      const rng = p > 0 ? sequence((pair+.5)/100,(rarity+.5)/100) : sequence((rarity+.5)/100);
+      counts[spawnLevel(max,rng)-low]++;
+    }
+    assert.deepEqual(counts, [Math.round(10000*(1-p)*.85), Math.round(10000*((1-p)*.15+p*.85)), Math.round(10000*p*.15)]);
   }
 });
 
-test('low-level merges use the highest level previously unlocked in the current game', () => {
-  const state = { ...createGame(), maxLevelReached: 15 };
-  assert.equal(mergeGame(state, 0, 1, () => 0).state.board[0], 5);
-  assert.equal(mergeGame(state, 0, 1, () => 0.85).state.board[0], 6);
-  assert.equal(mergeGame(createGame(), 0, 1, () => 0).state.board[0], 1);
+test('new unlock applies immediately; low merges retain progress and new games reset it', () => {
+  const before = { ...createGame(), board: [6,6,1,1,2,2,3,3,1], maxLevelReached: 6 };
+  assert.equal(mergeGame(before,0,1,sequence(.05,.5)).state.board[0],2);
+  const advanced = { ...createGame(), maxLevelReached: 16 };
+  assert.equal(mergeGame(advanced,0,1,sequence(.5)).state.board[0],2);
+  assert.equal(mergeGame(createGame(),0,1,sequence(.5)).state.board[0],1);
 });
