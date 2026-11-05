@@ -32,8 +32,6 @@ function render() {
     tile.classList.toggle('valid-target', selected !== null && selected !== i && state.board[selected] === level);
   });
   $('best-score').textContent = bestScore.toLocaleString('en-US');
-  $('max-level').textContent = String(state.maxLevelReached);
-  $('merge-count').textContent = state.mergeCount.toLocaleString('en-US');
 }
 function animateScore() {
   cancelAnimationFrame(scoreFrame);
@@ -122,7 +120,7 @@ function persist() {
 }
 function showGameOver() {
   if (state.status !== 'game_over') return;
-  $('final-score').textContent = `${state.score.toLocaleString('en-US')} points · ${state.mergeCount} merges · level ${state.maxLevelReached}`;
+  $('final-score').textContent = `${state.score.toLocaleString('en-US')} points`;
   if (!$('game-over').open) $('game-over').showModal();
 }
 $('score').textContent = shownScore.toLocaleString('en-US');
