@@ -4,9 +4,9 @@ export const CONFIG = Object.freeze({
   spawnTiers: Object.freeze([
     Object.freeze({ unlockedAt: 1, lowerLevel: 1 }),
     Object.freeze({ unlockedAt: 6, lowerLevel: 2 }),
-    Object.freeze({ unlockedAt: 8, lowerLevel: 3 }),
-    Object.freeze({ unlockedAt: 10, lowerLevel: 4 }),
-    Object.freeze({ unlockedAt: 12, lowerLevel: 5 }),
+    Object.freeze({ unlockedAt: 9, lowerLevel: 3 }),
+    Object.freeze({ unlockedAt: 12, lowerLevel: 4 }),
+    Object.freeze({ unlockedAt: 15, lowerLevel: 5 }),
   ]),
   pointsMultiplier: 10,
   initialBoard: Object.freeze([1, 1, 2, 1, 2, 3, 2, 3, 1]),
