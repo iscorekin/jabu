@@ -1,9 +1,22 @@
 export const CONFIG = Object.freeze({
   boardSize: 9,
-  spawnLevelOneProbability: 0.85,
+  spawnLowerLevelProbability: 0.85,
+  spawnTiers: Object.freeze([
+    Object.freeze({ unlockedAt: 1, lowerLevel: 1 }),
+    Object.freeze({ unlockedAt: 6, lowerLevel: 2 }),
+    Object.freeze({ unlockedAt: 8, lowerLevel: 4 }),
+    Object.freeze({ unlockedAt: 10, lowerLevel: 6 }),
+    Object.freeze({ unlockedAt: 12, lowerLevel: 8 }),
+  ]),
   pointsMultiplier: 10,
   initialBoard: Object.freeze([1, 1, 2, 1, 2, 3, 2, 3, 1]),
 });
+
+export function spawnLevel(maxLevelReached, rng = Math.random) {
+  const tier = [...CONFIG.spawnTiers].reverse().find(tier => maxLevelReached >= tier.unlockedAt);
+  const lowerLevel = tier?.lowerLevel ?? 1;
+  return lowerLevel + (rng() < CONFIG.spawnLowerLevelProbability ? 0 : 1);
+}
 
 export function hasAvailableMerge(board) {
   return new Set(board).size < board.length;
@@ -34,10 +47,11 @@ export function mergeGame(state, source, target, rng = Math.random) {
 
   const level = state.board[source];
   const newLevel = level + 1;
+  const maxLevelReached = Math.max(state.maxLevelReached, newLevel);
   const points = CONFIG.pointsMultiplier * 2 ** level;
   const board = [...state.board];
   board[target] = newLevel;
-  board[source] = rng() < CONFIG.spawnLevelOneProbability ? 1 : 2;
+  board[source] = spawnLevel(maxLevelReached, rng);
 
   return {
     success: true,
@@ -46,7 +60,7 @@ export function mergeGame(state, source, target, rng = Math.random) {
       board,
       score: state.score + points,
       mergeCount: state.mergeCount + 1,
-      maxLevelReached: Math.max(state.maxLevelReached, newLevel),
+      maxLevelReached,
       status: hasAvailableMerge(board) ? 'playing' : 'game_over',
     },
     newLevel,
