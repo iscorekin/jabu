@@ -76,37 +76,34 @@ const sequence = (...values) => () => {
   return values.shift();
 };
 
-test('spawn help increases by ten percentage points per unlocked level after six', () => {
-  for (const [level, lower, chance] of [[1,1,0],[6,1,0],[7,1,.1],[8,1,.2],[9,1,.3],[10,1,.4],[15,1,.9],[16,2,0],[17,2,.1],[26,3,0]]) {
-    assert.deepEqual(getSpawnMix(level), { lowerLevel: lower, higherPairChance: chance });
-  }
-});
-
-test('pair selection and the 85/15 roll are independent at their exact boundaries', () => {
-  assert.equal(spawnLevel(8, sequence(.199999, .849999)), 2);
-  assert.equal(spawnLevel(8, sequence(.199999, .85)), 3);
-  assert.equal(spawnLevel(8, sequence(.2, .849999)), 1);
-  assert.equal(spawnLevel(8, sequence(.2, .85)), 2);
-  assert.equal(spawnLevel(16, sequence(.849999)), 2);
-  assert.equal(spawnLevel(16, sequence(.85)), 3);
-});
-
-test('combined probabilities match the two-stage distribution across the progression', () => {
-  for (const max of [6,7,8,9,10,15,16,17,26]) {
-    const { lowerLevel: low, higherPairChance: p } = getSpawnMix(max);
-    const counts = [0,0,0];
-    for(let pair=0;pair<100;pair++) for(let rarity=0;rarity<100;rarity++) {
-      const rng = p > 0 ? sequence((pair+.5)/100,(rarity+.5)/100) : sequence((rarity+.5)/100);
-      counts[spawnLevel(max,rng)-low]++;
+test('boosts ramp gradually while low-level frogs stay available at every level', () => {
+  for (let max=1;max<=30;max++) {
+    const mix = getSpawnMix(max);
+    assert.equal(mix.lowerLevel,1);
+    assert.equal(mix.higherLevel,Math.max(2,max-CONFIG.spawnBoostLevelGap));
+    assert.ok(mix.higherPairChance>=0 && mix.higherPairChance<=CONFIG.spawnBoostMaxChance);
+    assert.equal(spawnLevel(max,()=>.999),2);
+    if(max<=CONFIG.spawnBoostStartsAt) assert.equal(mix.higherPairChance,0);
+    if(max>1) {
+      const delta=mix.higherPairChance-getSpawnMix(max-1).higherPairChance;
+      assert.ok(delta>=-1e-12 && delta<=CONFIG.spawnBoostMaxChance/CONFIG.spawnBoostRampLevels+1e-12);
     }
-    assert.deepEqual(counts, [Math.round(10000*(1-p)*.85), Math.round(10000*((1-p)*.15+p*.85)), Math.round(10000*p*.15)]);
   }
 });
 
-test('new unlock applies immediately; low merges retain progress and new games reset it', () => {
-  const before = { ...createGame(), board: [6,6,1,1,2,2,3,3,1], maxLevelReached: 6 };
-  assert.equal(mergeGame(before,0,1,sequence(.05,.5)).state.board[0],2);
-  const advanced = { ...createGame(), maxLevelReached: 16 };
-  assert.equal(mergeGame(advanced,0,1,sequence(.5)).state.board[0],2);
+test('boost selection and the 85/15 roll use independent exact boundaries', () => {
+  const max=8;
+  const {higherPairChance:p,higherLevel}=getSpawnMix(max);
+  assert.equal(spawnLevel(max,sequence(p/2,.849999)),higherLevel);
+  assert.equal(spawnLevel(max,sequence(p/2,.85)),higherLevel+1);
+  assert.equal(spawnLevel(max,sequence(p,.849999)),1);
+  assert.equal(spawnLevel(max,sequence(p,.85)),2);
+});
+
+test('newly opened level affects the replacement and saved progress is respected', () => {
+  const before={...createGame(),board:[5,5,1,1,2,2,3,3,1],maxLevelReached:5};
+  assert.equal(mergeGame(before,0,1,sequence(0,.5)).state.board[0],getSpawnMix(6).higherLevel);
+  const advanced={...createGame(),maxLevelReached:13};
+  assert.equal(mergeGame(advanced,0,1,sequence(0,.5)).state.board[0],getSpawnMix(13).higherLevel);
   assert.equal(mergeGame(createGame(),0,1,sequence(.5)).state.board[0],1);
 });

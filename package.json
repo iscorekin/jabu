@@ -1,1 +1,12 @@
-{"name":"frog-merge","version":"1.0.0","private":true,"type":"module","scripts":{"test":"node --test *.test.js","dev":"python3 -m http.server 5183"}}
+{
+  "name": "frog-merge",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test *.test.js scripts/*.test.mjs",
+    "dev": "python3 -m http.server 5183",
+    "search": "node scripts/search-reachability.mjs",
+    "balance": "node scripts/tune-balance.mjs"
+  }
+}

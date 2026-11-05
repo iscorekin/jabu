@@ -1,4 +1,4 @@
-import { createGame, hasAvailableMerge } from './game.js?v=5';
+import { createGame, hasAvailableMerge } from './game.js?v=6';
 
 const KEY = 'jabu.save.v1';
 const nonnegativeInteger = value => Number.isSafeInteger(value) && value >= 0;
