@@ -3,19 +3,20 @@ export const CONFIG = Object.freeze({
   spawnLowerLevelProbability: 0.85,
   spawnBoostStartsAt: 5,
   spawnBoostRampLevels: 5,
-  spawnBoostMaxChance: 0.025,
-  spawnBoostLevelGap: 2,
+  spawnBoostMaxChance: 1,
+  spawnBoostFirstLevel: 6,
+  spawnBoostLevelsPerStep: 3,
   pointsMultiplier: 10,
   initialBoard: Object.freeze([1, 1, 2, 1, 2, 3, 2, 3, 1]),
 });
 
-export function getSpawnMix(maxLevelReached) {
+export function getSpawnMix(maxLevelReached, config = CONFIG) {
   const ramp = Math.min(1, Math.max(0,
-    (maxLevelReached - CONFIG.spawnBoostStartsAt) / CONFIG.spawnBoostRampLevels));
+    (maxLevelReached - config.spawnBoostStartsAt) / config.spawnBoostRampLevels));
   return {
     lowerLevel: 1,
-    higherLevel: Math.max(2, maxLevelReached - CONFIG.spawnBoostLevelGap),
-    higherPairChance: CONFIG.spawnBoostMaxChance * ramp,
+    higherLevel: 2 + Math.floor(Math.max(0, maxLevelReached - config.spawnBoostFirstLevel) / config.spawnBoostLevelsPerStep),
+    higherPairChance: config.spawnBoostMaxChance * ramp,
   };
 }
 

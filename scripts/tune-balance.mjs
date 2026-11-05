@@ -1,12 +1,11 @@
-import { CONFIG } from '../game.js';
+import { CONFIG, getSpawnMix } from '../game.js';
 import { optimalPolicy } from './search-reachability.mjs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 export function balanceSpawns(maximum, config) {
-  const p=config.spawnBoostMaxChance*Math.min(1,Math.max(0,(maximum-config.spawnBoostStartsAt)/config.spawnBoostRampLevels));
-  const higher=Math.max(2,maximum-config.spawnBoostLevelGap);
+  const {higherPairChance:p,higherLevel:higher}=getSpawnMix(maximum,config);
   const result=new Map();
   for(const [base,weight] of [[1,1-p],[higher,p]]) for(const [offset,chance] of [[0,CONFIG.spawnLowerLevelProbability],[1,1-CONFIG.spawnLowerLevelProbability]]) {
     if(weight*chance>0) result.set(base+offset,(result.get(base+offset)??0)+weight*chance);
@@ -45,8 +44,8 @@ export async function main(args=process.argv.slice(2)) {
   const targets=[.4,.1,.02,.002];
   const results=[];
   let best;
-  for(const cap of [.01,.015,.02,.025,.03,.04]) {
-    const config={spawnBoostStartsAt:5,spawnBoostRampLevels:5,spawnBoostMaxChance:cap,spawnBoostLevelGap:2};
+  for(const cap of [.1,.2,.4,.6,.8,.9,1]) {
+    const config={spawnBoostStartsAt:5,spawnBoostRampLevels:5,spawnBoostMaxChance:cap,spawnBoostFirstLevel:6,spawnBoostLevelsPerStep:3};
     const graph=candidateGraph(config);
     if(!graph) { const result={config,incomplete:true};results.push(result);console.log(JSON.stringify(result));continue; }
     const probabilities=[10,11,12,13].map(level=>optimalPolicy(graph,level).probability);

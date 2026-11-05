@@ -45,9 +45,9 @@ test('invalid actions preserve the entire state and never draw randomness', () =
 });
 
 test('last available pair ends the game after spawning and further actions are blocked', () => {
-  const state = { ...createGame(), board: [8, 8, 2, 3, 4, 5, 6, 7, 10], maxLevelReached: 10 };
+  const state = { ...createGame(), board: [9, 9, 1, 2, 4, 5, 6, 7, 8], maxLevelReached: 9 };
   const result = mergeGame(state, 0, 1, () => 0.5);
-  assert.deepEqual(result.state.board, [1, 9, 2, 3, 4, 5, 6, 7, 10]);
+  assert.deepEqual(result.state.board, [3, 10, 1, 2, 4, 5, 6, 7, 8]);
   assert.equal(result.state.status, 'game_over');
   assert.equal(result.state.board.length, 9);
   assert.equal(hasAvailableMerge(result.state.board), false);
@@ -55,7 +55,7 @@ test('last available pair ends the game after spawning and further actions are b
 });
 
 test('availability is checked after the replacement frog spawns', () => {
-  const state = { ...createGame(), board: [8, 8, 2, 3, 4, 5, 6, 7, 10], maxLevelReached: 10 };
+  const state = { ...createGame(), board: [9, 9, 1, 2, 4, 5, 6, 7, 8], maxLevelReached: 9 };
   const result = mergeGame(state, 0, 1, () => 0.99);
   assert.equal(result.state.status, 'playing');
   assert.equal(hasAvailableMerge(result.state.board), true);
@@ -76,13 +76,13 @@ const sequence = (...values) => () => {
   return values.shift();
 };
 
-test('boosts ramp gradually while low-level frogs stay available at every level', () => {
+test('boost frequency ramps gradually and respects fixed level milestones', () => {
   for (let max=1;max<=30;max++) {
     const mix = getSpawnMix(max);
     assert.equal(mix.lowerLevel,1);
-    assert.equal(mix.higherLevel,Math.max(2,max-CONFIG.spawnBoostLevelGap));
+    assert.equal(mix.higherLevel,2+Math.floor(Math.max(0,max-6)/3));
     assert.ok(mix.higherPairChance>=0 && mix.higherPairChance<=CONFIG.spawnBoostMaxChance);
-    assert.equal(spawnLevel(max,()=>.999),2);
+    assert.equal(spawnLevel(max,()=>.999),mix.higherPairChance===1 ? mix.higherLevel+1 : 2);
     if(max<=CONFIG.spawnBoostStartsAt) assert.equal(mix.higherPairChance,0);
     if(max>1) {
       const delta=mix.higherPairChance-getSpawnMix(max-1).higherPairChance;
@@ -106,4 +106,11 @@ test('newly opened level affects the replacement and saved progress is respected
   const advanced={...createGame(),maxLevelReached:13};
   assert.equal(mergeGame(advanced,0,1,sequence(0,.5)).state.board[0],getSpawnMix(13).higherLevel);
   assert.equal(mergeGame(createGame(),0,1,sequence(.5)).state.board[0],1);
+});
+
+test('spawn levels follow fixed milestones even with the luckiest possible rolls', () => {
+  for(const [max,highest] of [[3,2],[5,2],[6,3],[7,3],[8,3],[9,4],[10,4],[11,4],[12,5],[13,5],[14,5],[15,6],[17,6],[18,7]]) {
+    const rolls = max<=5 ? [.999] : [0,.999];
+    assert.equal(spawnLevel(max,()=>rolls.shift()),highest);
+  }
 });

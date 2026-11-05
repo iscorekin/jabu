@@ -1,6 +1,6 @@
-import { createGame, mergeGame } from './game.js?v=6';
-import { FrogAudio } from './audio.js?v=6';
-import { loadGame, saveGame } from './storage.js?v=6';
+import { createGame, mergeGame } from './game.js?v=7';
+import { FrogAudio } from './audio.js?v=7';
+import { loadGame, saveGame } from './storage.js?v=7';
 const $ = (id) => document.getElementById(id);
 const audio = new FrogAudio();
 const board = $('board');

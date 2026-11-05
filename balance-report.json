@@ -9,17 +9,18 @@
     "config": {
       "spawnBoostStartsAt": 5,
       "spawnBoostRampLevels": 5,
-      "spawnBoostMaxChance": 0.025,
-      "spawnBoostLevelGap": 2
+      "spawnBoostMaxChance": 1,
+      "spawnBoostFirstLevel": 6,
+      "spawnBoostLevelsPerStep": 3
     },
-    "states": 215003,
+    "states": 50802,
     "probabilities": [
-      0.6460883861689629,
-      0.1981324551054039,
-      0.019837767010032818,
-      0.0010771903509753404
+      0.7555635359797856,
+      0.7196734554118618,
+      0.09386401409235846,
+      0.012243132272916322
     ],
-    "loss": 1.0803972609928383,
+    "loss": 9.972855550950463,
     "incomplete": false
   },
   "results": [
@@ -27,102 +28,126 @@
       "config": {
         "spawnBoostStartsAt": 5,
         "spawnBoostRampLevels": 5,
-        "spawnBoostMaxChance": 0.01,
-        "spawnBoostLevelGap": 2
+        "spawnBoostMaxChance": 0.1,
+        "spawnBoostFirstLevel": 6,
+        "spawnBoostLevelsPerStep": 3
       },
-      "states": 215003,
+      "states": 134392,
       "probabilities": [
-        0.4285573809081488,
-        0.04486477082573362,
-        0.0008680114847251476,
-        0.000007557056249142019
+        0.29873951790870323,
+        0.000016621243903917315,
+        2.961512217181831e-27,
+        2.585642294345841e-74
       ],
-      "loss": 41.60850549568982,
+      "loss": 29987.420785977454,
       "incomplete": false
     },
     {
       "config": {
         "spawnBoostStartsAt": 5,
         "spawnBoostRampLevels": 5,
-        "spawnBoostMaxChance": 0.015,
-        "spawnBoostLevelGap": 2
+        "spawnBoostMaxChance": 0.2,
+        "spawnBoostFirstLevel": 6,
+        "spawnBoostLevelsPerStep": 3
       },
-      "states": 215003,
+      "states": 134392,
       "probabilities": [
-        0.5179941444246198,
-        0.0899107093086087,
-        0.003657165706375257,
-        0.00007291934528177858
+        0.412465998115319,
+        0.000296178035154662,
+        9.018600074806482e-21,
+        1.3724563939167333e-55
       ],
-      "loss": 13.931236226933105,
+      "loss": 16245.01022613409,
       "incomplete": false
     },
     {
       "config": {
         "spawnBoostStartsAt": 5,
         "spawnBoostRampLevels": 5,
-        "spawnBoostMaxChance": 0.02,
-        "spawnBoostLevelGap": 2
+        "spawnBoostMaxChance": 0.4,
+        "spawnBoostFirstLevel": 6,
+        "spawnBoostLevelsPerStep": 3
       },
-      "states": 215003,
+      "states": 134392,
       "probabilities": [
-        0.5885475859211742,
-        0.14226677914283853,
-        0.00968120641997818,
-        0.0003424770465585651
+        0.5564580889236609,
+        0.004110697422284921,
+        1.2128623873251048e-14,
+        3.167208197857167e-38
       ],
-      "loss": 3.9140003567377653,
+      "loss": 7222.5998181017885,
       "incomplete": false
     },
     {
       "config": {
         "spawnBoostStartsAt": 5,
         "spawnBoostRampLevels": 5,
-        "spawnBoostMaxChance": 0.025,
-        "spawnBoostLevelGap": 2
+        "spawnBoostMaxChance": 0.6,
+        "spawnBoostFirstLevel": 6,
+        "spawnBoostLevelsPerStep": 3
       },
-      "states": 215003,
+      "states": 134392,
       "probabilities": [
-        0.6460883861689629,
-        0.1981324551054039,
-        0.019837767010032818,
-        0.0010771903509753404
+        0.6442987884268274,
+        0.015904030112950857,
+        3.332659058822922e-11,
+        3.836182131129956e-28
       ],
-      "loss": 1.0803972609928383,
+      "loss": 3651.2819604030346,
       "incomplete": false
     },
     {
       "config": {
         "spawnBoostStartsAt": 5,
         "spawnBoostRampLevels": 5,
-        "spawnBoostMaxChance": 0.03,
-        "spawnBoostLevelGap": 2
+        "spawnBoostMaxChance": 0.8,
+        "spawnBoostFirstLevel": 6,
+        "spawnBoostLevelsPerStep": 3
       },
-      "states": 215003,
+      "states": 134392,
       "probabilities": [
-        0.6941864238828744,
-        0.2548307255534148,
-        0.034580176906159554,
-        0.00262509781785164
+        0.7051436302598164,
+        0.04168813889750864,
+        2.04636132940382e-8,
+        1.1026794115821436e-19
       ],
-      "loss": 1.5527106143857639,
+      "loss": 1592.8340440269674,
       "incomplete": false
     },
     {
       "config": {
         "spawnBoostStartsAt": 5,
         "spawnBoostRampLevels": 5,
-        "spawnBoostMaxChance": 0.04,
-        "spawnBoostLevelGap": 2
+        "spawnBoostMaxChance": 0.9,
+        "spawnBoostFirstLevel": 6,
+        "spawnBoostLevelsPerStep": 3
       },
-      "states": 215003,
+      "states": 134392,
       "probabilities": [
-        0.7696375685603071,
-        0.3633083987901713,
-        0.07739240835289035,
-        0.009645326934605711
+        0.7305713016986779,
+        0.06971159454731952,
+        9.59576771596606e-7,
+        1.3407978070689524e-14
       ],
-      "loss": 6.3990109347751725,
+      "loss": 761.3374492522131,
+      "incomplete": false
+    },
+    {
+      "config": {
+        "spawnBoostStartsAt": 5,
+        "spawnBoostRampLevels": 5,
+        "spawnBoostMaxChance": 1,
+        "spawnBoostFirstLevel": 6,
+        "spawnBoostLevelsPerStep": 3
+      },
+      "states": 50802,
+      "probabilities": [
+        0.7555635359797856,
+        0.7196734554118618,
+        0.09386401409235846,
+        0.012243132272916322
+      ],
+      "loss": 9.972855550950463,
       "incomplete": false
     }
   ],
