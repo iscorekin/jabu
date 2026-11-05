@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f3f4ee">
+<meta name="description" content="Объединяйте жаб одинакового уровня.">
+<title>jabu</title>
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<main class="app-shell">
+<header class="topbar"><h1>jabu</h1><button id="sound-toggle" class="secondary-button" aria-pressed="true">Звук: вкл.</button></header>
+<section class="game-panel" aria-label="Игра">
+<div class="stats">
+<div class="stat"><span>Очки</span><strong id="score">0</strong></div>
+<div class="stat"><span>Рекорд</span><strong id="best-score">0</strong></div>
+<div class="stat"><span>Макс. уровень</span><strong id="max-level">3</strong></div>
+<div class="stat"><span>Объединения</span><strong id="merge-count">0</strong></div>
+</div>
+<div class="board-wrap"><div id="board" class="board" aria-label="Игровое поле 3 на 3"></div></div>
+<p id="status" class="status-text" aria-live="polite"></p>
+<div class="bottom-bar"><button id="new-game" class="secondary-button">Новая игра</button></div>
+<p class="help">Перетащите жабу на такую же или нажмите на них по очереди.</p>
+</section>
+</main>
+<div id="drag-ghost" class="drag-ghost" hidden><img alt=""></div>
+<dialog id="game-over" aria-labelledby="over-title"><div class="modal-card"><h2 id="over-title">Игра окончена</h2><p>Одинаковых жаб больше нет.</p><p id="final-score"></p><button id="restart" class="secondary-button">Новая игра</button></div></dialog>
+<script type="module" src="./app.js"></script>
+</body>
+</html>
